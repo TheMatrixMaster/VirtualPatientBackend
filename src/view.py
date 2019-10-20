@@ -17,6 +17,9 @@ from flask import (
 )
 
 import keyboard
+import librosa
+import pandas as pd 
+import numpy as np 
 from playsound import playsound
 
 # Imports the Google Cloud client library
@@ -26,6 +29,11 @@ from google.cloud.speech import types
 
 from google.cloud import texttospeech
 import watson_developer_cloud
+
+import matplotlib.pyplot as plt
+
+# loading json and creating model
+# from keras.models import model_from_json
 
 
 bp = Blueprint('view', __name__)
@@ -38,12 +46,39 @@ service = watson_developer_cloud.AssistantV2(
  )
 
 
+# json_file = open('model.json', 'r')
+# loaded_model_json = json_file.read()
+# json_file.close()
+# loaded_model = model_from_json(loaded_model_json)
+# # load weights into new model
+# loaded_model.load_weights("saved_models/Emotion_Voice_Detection_Model.h5")
+# print("Loaded model from disk")
+
+
 @bp.route('/api/speech_to_text', methods=['GET'])
 def speech_to_text():
 
     print('button pressed')
     os.system('python D:/Hackathons/VirtualPatient/src/record.py')
     file_name = "D:/Hackathons/VirtualPatient/output.wav"
+
+    # X, sample_rate = librosa.load(file_name, res_type='kaiser_fast', duration=2.5, sr=22050*2, offset=0.5)
+    # sample_rate = np.array(sample_rate)
+    # mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=13), axis=0)
+    # featurelive = mfccs
+    # livedf2 = featurelive
+
+    # livedf2 = pd.DataFrame(data=livedf2)
+
+    # livedf2 = livedf2.stack().to_frame().T
+
+    # twodim = np.expand_dims(livedf2, axis=2)
+
+    # livepreds = loaded_model.predict(twodim, 
+    #                          batch_size=32, 
+    #                          verbose=1)
+
+    # livepreds = np.array([0,0,0,0,0,0,0,0,0,0])
 
     # Instantiates a client
     client = speech.SpeechClient()
@@ -93,7 +128,7 @@ def text_to_speech(client_prompt):
 
     response = service.message(
         assistant_id='f3d20759-dfa8-48ec-8f66-a18ea3d517ec',
-        session_id='57dfd18b-ffe8-4bc2-bb4f-9992d1decefc',
+        session_id='e5303ecf-6b65-49dc-a2d7-81129a41721c',
         input={
             'message_type': 'text',
             'text': client_prompt
@@ -104,7 +139,7 @@ def text_to_speech(client_prompt):
         server_r = json.dumps(response, indent=2)
         server_r = json.loads(server_r)
         server_resp = server_r['output']['generic'][0]['text']
-        server_intent = server_r['output']['generic'][0]['intent']
+        #server_intent = server_r['output']['generic'][0]['intent']
     except:
         server_resp = "I don't know how to answer that question, please elaborate."
 
@@ -134,8 +169,8 @@ def text_to_speech(client_prompt):
 
     playsound('patient.mp3')
 
-    data = {'msg': server_resp,
-            'intent': server_intent}
+    data = {'msg': server_resp}
+            #'intent': server_intent}
     resp = Response(json.dumps(data), status=200, mimetype='application/json')
     resp.headers['Access-Control-Allow-Origin'] = '*'
 
