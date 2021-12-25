@@ -128,7 +128,6 @@ def text_to_speech(client_prompt):
 
     response = service.message(
         assistant_id='f3d20759-dfa8-48ec-8f66-a18ea3d517ec',
-        session_id='cc5a1c1a-cf59-42d2-ae65-5640daba489f',
         input={
             'message_type': 'text',
             'text': client_prompt
